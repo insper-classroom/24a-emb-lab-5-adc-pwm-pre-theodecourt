@@ -46,12 +46,12 @@ void process_task(void *p) {
         window[index] = data;
 
         // Calculamos a média móvel e imprimimos o resultado
-        if (count >= WINDOW_SIZE) {
-            printf("Média móvel: %d\n", sum / WINDOW_SIZE);
+        if (count >= window_size) {
+            printf("Média móvel: %d\n", sum / window_size);
         }
 
         // Atualizamos o índice para a próxima inserção
-        index = (index + 1) % WINDOW_SIZE;
+        index = (index + 1) % window_size;
 
         // deixar esse delay!
         vTaskDelay(pdMS_TO_TICKS(50));
