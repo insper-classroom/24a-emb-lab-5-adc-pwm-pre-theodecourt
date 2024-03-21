@@ -25,6 +25,10 @@ void data_task(void *p) {
 
 void process_task(void *p) {
     int data = 0;
+    int window[5] = {0}; // Janela para as últimas 5 amostras
+    int sum = 0; // Soma das últimas 5 amostras
+    int count = 0; // Contador para saber quantas amostras foram lidas
+    int index = 0; // Índice para a próxima amostra
 
     while (true) {
         if (xQueueReceive(xQueueData, &data, portMAX_DELAY)) {
