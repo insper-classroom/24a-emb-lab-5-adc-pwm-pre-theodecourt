@@ -7,7 +7,8 @@
 #include <stdio.h>
 
 #include "data.h"
-#define WINDOW_SIZE 5
+
+const int window_size = 5;
 QueueHandle_t xQueueData;
 
 // não mexer! Alimenta a fila com os dados do sinal
@@ -26,14 +27,14 @@ void data_task(void *p) {
 
 void process_task(void *p) {
     int data = 0;
-    int window[WINDOW_SIZE] = {0}; // Janela para armazenar as últimas 5 amostras
+    int window[window_size] = {0}; // Janela para armazenar as últimas 5 amostras
     int sum = 0; // Soma das últimas 5 amostras
     int count = 0; // Contador para saber quantas amostras foram lidas
     int index = 0; // Índice para inserir a próxima amostra
 
     while (true) {
     // Se já tivermos 5 amostras, subtraímos a mais antiga da soma
-        if (count >= WINDOW_SIZE) {
+        if (count >= window_size) {
             sum -= window[index];
         } else {
             // Se ainda não temos 5 amostras, apenas incrementamos o contador
