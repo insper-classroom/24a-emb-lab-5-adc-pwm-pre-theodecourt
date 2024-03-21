@@ -12,18 +12,26 @@
 void adc_1_task(void *p) {
     adc_init();
     adc_gpio_init(27);
+    adc_gpio_init(26);
 
     // 12-bit conversion, assume max value == ADC_VREF == 3.3 V
     const float conversion_factor = 3.3f / (1 << 12);
 
-    uint16_t result;
+    uint16_t result27;
+    uint16_t result26;
     while (1) {
         adc_select_input(1); // Select ADC input 1 (GPIO27)
-        result = adc_read();
-        printf("voltage 1: %f V\n", result * conversion_factor);
+
+        result27 = adc_read();
+        printf("voltage 1: %f V\n", result27 * conversion_factor);
+
+        vTaskDelay(pdMS_TO_TICKS(10));
 
         // CÓDIGO AQUI
+        adc_select_input(0); // Select ADC input 1 (GPIO26)
 
+        result26 = adc_read();
+        printf("voltage 2: %f V\n", result26 * conversion_factor);
 
 
         vTaskDelay(pdMS_TO_TICKS(200));
