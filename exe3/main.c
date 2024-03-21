@@ -25,34 +25,26 @@ void data_task(void *p) {
 
 void process_task(void *p) {
     int data = 0;
-    int window[5] = {0}; // Janela para as últimas 5 amostras
-    int sum = 0; // Soma das últimas 5 amostras
-    int count = 0; // Contador para saber quantas amostras foram lidas
-    int index = 0; // Índice para a próxima amostra
+    int lista[5] = {0};
+    int j = 0;
+    int soma = 0;
 
     while (true) {
-        if (xQueueReceive(xQueueData, &data, portMAX_DELAY)) {
-            // Se já tivermos 5 amostras, subtraímos a mais antiga da soma
-            if (count >= 5) {
-                sum -= window[index];
+        if (xQueueReceive(xQueueData, &data, 100)) {
+            lista[j] = data;
+            j = (j+1) % 5;
+
+            int media = 0;
+            soma = 0;
+            for(int x = 0; x < 5; x++) {
+                soma += lista[x];
             }
 
-            // Adicionamos a nova amostra na soma e na janela
-            sum += data;
-            window[index] = data;
+            media = soma / 5;
 
-            // Se já recebemos 5 ou mais amostras, calculamos a média
-            if (count >= 5) {
-                int average = sum / 5;
-                printf("Média móvel: %d\n", average);
-            } else {
-                count++;
-            }
+            printf("%d\n", media);
 
-            // Movemos o índice para a próxima posição
-            index = (index + 1) % 5;
-
-            // Deixar esse delay!
+            // deixar esse delay!
             vTaskDelay(pdMS_TO_TICKS(50));
         }
     }
