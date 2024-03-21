@@ -7,6 +7,7 @@
 #include <stdio.h>
 
 #include "data.h"
+#define WINDOW_SIZE 5
 QueueHandle_t xQueueData;
 
 // não mexer! Alimenta a fila com os dados do sinal
@@ -25,17 +26,35 @@ void data_task(void *p) {
 
 void process_task(void *p) {
     int data = 0;
+    int window[WINDOW_SIZE] = {0}; // Janela para armazenar as últimas 5 amostras
+    int sum = 0; // Soma das últimas 5 amostras
+    int count = 0; // Contador para saber quantas amostras foram lidas
+    int index = 0; // Índice para inserir a próxima amostra
 
     while (true) {
-        if (xQueueReceive(xQueueData, &data, 100)) {
-            // implementar filtro aqui!
-
-
-
-
-            // deixar esse delay!
-            vTaskDelay(pdMS_TO_TICKS(50));
+    // Se já tivermos 5 amostras, subtraímos a mais antiga da soma
+        if (count >= WINDOW_SIZE) {
+            sum -= window[index];
+        } else {
+            // Se ainda não temos 5 amostras, apenas incrementamos o contador
+            count++;
         }
+
+        // Adicionamos a nova amostra na soma e no vetor
+        sum += data;
+        window[index] = data;
+
+        // Calculamos a média móvel e imprimimos o resultado
+        if (count >= WINDOW_SIZE) {
+            printf("Média móvel: %d\n", sum / WINDOW_SIZE);
+        }
+
+        // Atualizamos o índice para a próxima inserção
+        index = (index + 1) % WINDOW_SIZE;
+
+        // deixar esse delay!
+        vTaskDelay(pdMS_TO_TICKS(50));
+        
     }
 }
 
