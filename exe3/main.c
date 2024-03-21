@@ -7,8 +7,6 @@
 #include <stdio.h>
 
 #include "data.h"
-
-const int window_size = 5;
 QueueHandle_t xQueueData;
 
 // não mexer! Alimenta a fila com os dados do sinal
@@ -27,35 +25,32 @@ void data_task(void *p) {
 
 void process_task(void *p) {
     int data = 0;
-    int window[window_size] = {0}; // Janela para armazenar as últimas 5 amostras
-    int sum = 0; // Soma das últimas 5 amostras
-    int count = 0; // Contador para saber quantas amostras foram lidas
-    int index = 0; // Índice para inserir a próxima amostra
 
     while (true) {
-    // Se já tivermos 5 amostras, subtraímos a mais antiga da soma
-        if (count >= window_size) {
-            sum -= window[index];
-        } else {
-            // Se ainda não temos 5 amostras, apenas incrementamos o contador
-            count++;
+        if (xQueueReceive(xQueueData, &data, portMAX_DELAY)) {
+            // Se já tivermos 5 amostras, subtraímos a mais antiga da soma
+            if (count >= 5) {
+                sum -= window[index];
+            }
+
+            // Adicionamos a nova amostra na soma e na janela
+            sum += data;
+            window[index] = data;
+
+            // Se já recebemos 5 ou mais amostras, calculamos a média
+            if (count >= 5) {
+                int average = sum / 5;
+                printf("Média móvel: %d\n", average);
+            } else {
+                count++;
+            }
+
+            // Movemos o índice para a próxima posição
+            index = (index + 1) % 5;
+
+            // Deixar esse delay!
+            vTaskDelay(pdMS_TO_TICKS(50));
         }
-
-        // Adicionamos a nova amostra na soma e no vetor
-        sum += data;
-        window[index] = data;
-
-        // Calculamos a média móvel e imprimimos o resultado
-        if (count >= window_size) {
-            printf("Média móvel: %d\n", sum / window_size);
-        }
-
-        // Atualizamos o índice para a próxima inserção
-        index = (index + 1) % window_size;
-
-        // deixar esse delay!
-        vTaskDelay(pdMS_TO_TICKS(50));
-        
     }
 }
 
